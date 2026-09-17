@@ -80,6 +80,24 @@ supervisor dies, launchd brings it back.
 the clone location and the directory of your `node` binary, so moving the
 folder or switching Node installs is just `./install.sh` again.
 
+## Performance overhead
+
+Very little, and none of it is continuous.
+
+- **Injector process** (`node inject.mjs`): roughly 30–50 MB of RAM idle with
+  one open WebSocket. It does nothing between page loads, so CPU is
+  effectively zero. Slack itself typically uses 500 MB+.
+- **Supervisor loop** (`slack-css.sh`): while Slack is running it is blocked
+  waiting on the injector and costs nothing. Only while Slack is *closed* does
+  it wake every two seconds to run `pgrep` and `nc`, a few milliseconds of CPU.
+- **Inside Slack**: `Page.enable` makes Chromium send a handful of tiny
+  lifecycle messages per navigation, not a stream. A one-rule `<style>` tag
+  has no measurable render cost.
+- **Debug port**: Chromium keeps a listener open on `localhost:9222`. Idle it
+  costs nothing; its significance is security, not performance (see below).
+
+Battery and CPU impact should be indistinguishable from not running it.
+
 ## Caveat
 
 While Slack runs with the debug port open, any local process can drive your
