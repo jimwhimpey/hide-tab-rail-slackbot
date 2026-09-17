@@ -48,18 +48,37 @@ launchctl kickstart -k gui/$UID/hide-tab-rail-slackbot
 
 ## Why it's durable
 
-- **Reboots / logins**: the launchd agent has `RunAtLoad` and `KeepAlive`, so
-  the supervisor is always running while you're logged in.
-- **Slack updates**: nothing inside `Slack.app` is modified.
-  `--remote-debugging-port` is a Chromium flag every Electron app accepts, so
-  updates don't undo anything. Only the CSS selector itself can go stale if
-  Slack renames a class; edit `custom.css` if that happens.
-- **Quitting and relaunching Slack**: quitting Slack leaves it quit. If you
-  relaunch it from the Dock or Spotlight (without the flag), the supervisor
-  notices within a couple of seconds, restarts it with the flag, and re-injects.
-- **Page reloads (Cmd-R, reconnects)**: the injector stays attached and
-  re-injects on every `Page.loadEventFired`.
-- **Crashes**: if the injector or supervisor dies, launchd restarts it.
+Each layer covers a different way the CSS could stop being applied.
+
+**Reboots and logins.** The launchd agent is installed in
+`~/Library/LaunchAgents` with `RunAtLoad` and `KeepAlive`, so the supervisor
+script (`slack-css.sh`) is running any time you're logged in, and launchd
+restarts it if it ever exits.
+
+**Slack updates.** Nothing inside `Slack.app` is modified, so there's no
+patched bundle for an update to overwrite and no code-signing or ASAR
+integrity check to fight. `--remote-debugging-port` is a Chromium flag that
+every Electron app honours, so it keeps working across Slack and Electron
+versions. The only thing that can go stale is the CSS selector itself, if
+Slack renames a class; that's a one-line edit to `custom.css`.
+
+**Quitting and relaunching Slack.** The supervisor loops rather than exiting.
+Quit Slack and it stays quit. Open Slack from the Dock or Spotlight (which
+won't pass the flag) and within about two seconds the supervisor sees the
+debug port isn't open, quits that instance, relaunches it with the flag, and
+re-injects. You'll see one brief flicker, then it's applied.
+
+**Page reloads.** The injector (`inject.mjs`) holds its DevTools socket open
+and re-applies the style on every `Page.loadEventFired`. That covers Cmd-R and
+Slack's own reconnect reloads. It's event-driven, not polling, so it does no
+work while Slack is idle.
+
+**Crashes.** If the injector dies, the supervisor loop reruns it. If the
+supervisor dies, launchd brings it back.
+
+**Machine or path changes.** The plist is a template; `install.sh` fills in
+the clone location and the directory of your `node` binary, so moving the
+folder or switching Node installs is just `./install.sh` again.
 
 ## Caveat
 
