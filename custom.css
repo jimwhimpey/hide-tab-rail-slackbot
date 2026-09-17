@@ -1,0 +1,4 @@
+/* CSS injected into the Slack desktop app. Edit freely; restart the agent
+   (or Slack) to apply. */
+
+.p-tab_rail__button--slackbot { display: none !important; }
