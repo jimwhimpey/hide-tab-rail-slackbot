@@ -1,5 +1,7 @@
 # hide-tab-rail-slackbot
 
+![Before and after: the Slackbot button disappears from the tab rail](comparison.gif)
+
 Hides the Slackbot button in the Slack desktop app's tab rail (and lets you
 inject any other CSS) without patching the Slack app bundle.
 
