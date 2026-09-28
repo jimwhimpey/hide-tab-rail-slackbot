@@ -43,7 +43,7 @@ launchctl kickstart -k gui/$UID/hide-tab-rail-slackbot
 
 | File | Role |
 | --- | --- |
-| `slack-css.sh` | Supervisor. Launches Slack with `--remote-debugging-port=9222` and runs the injector whenever Slack is up. |
+| `slack-css.sh` | Supervisor. Launches Slack with `--remote-debugging-port=9333` and runs the injector whenever Slack is up. |
 | `inject.mjs` | Connects to Slack over the Chrome DevTools Protocol, adds a `<style>` tag with `custom.css`, and re-adds it after page reloads. |
 | `hide-tab-rail-slackbot.plist` | launchd agent template so the supervisor runs at login and is restarted if it dies. |
 | `install.sh` / `uninstall.sh` | Fill in the template paths and register / remove the agent. |
@@ -95,7 +95,7 @@ Very little, and none of it is continuous.
 - **Inside Slack**: `Page.enable` makes Chromium send a handful of tiny
   lifecycle messages per navigation, not a stream. A one-rule `<style>` tag
   has no measurable render cost.
-- **Debug port**: Chromium keeps a listener open on `localhost:9222`. Idle it
+- **Debug port**: Chromium keeps a listener open on `localhost:9333`. Idle it
   costs nothing; its significance is security, not performance (see below).
 
 Battery and CPU impact should be indistinguishable from not running it.
@@ -103,6 +103,6 @@ Battery and CPU impact should be indistinguishable from not running it.
 ## Caveat
 
 While Slack runs with the debug port open, any local process can drive your
-Slack session through `localhost:9222`. Don't use this on a shared machine.
+Slack session through `localhost:9333`. Don't use this on a shared machine.
 
 Logs: `/tmp/hide-tab-rail-slackbot.log`

@@ -17,6 +17,9 @@
   <dict>
     <key>PATH</key>
     <string>__NODE_DIR__:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <!-- Not 9222: Chrome's remote-debugging switch listens there by default. -->
+    <key>SLACK_DEBUG_PORT</key>
+    <string>9333</string>
   </dict>
 
   <key>RunAtLoad</key>
